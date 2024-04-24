@@ -142,10 +142,9 @@ class BasePredictor:
             im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
             im = np.ascontiguousarray(im)  # contiguous
             im = torch.from_numpy(im)
-
-        im = im.to(self.device)
-        im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
         cropped_im = crop_image(im, 0.7)
+        cropped_im = cropped_im.to(self.device)
+        im = cropped_im.half() if self.model.fp16 else cropped_im.float()  # uint8 to fp16/32
         if not_tensor:
             cropped_im /= 255  # 0 - 255 to 0.0 - 1.0
         return cropped_im
