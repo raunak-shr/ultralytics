@@ -59,6 +59,23 @@ Example:
         probs = r.probs  # Class probabilities for classification outputs
 """
 
+def crop_image(image, percent: float):
+    """Crop the input image to a given percent"""
+    original_height, original_width = image.size(-2), image.size(-1)
+    
+    new_height = int(original_height * percent)
+    new_width = int(original_width * percent)
+    
+    # Calculate crop boundaries
+    top = original_height - new_height
+    bottom = original_height
+    left = 0
+    right = new_width
+    
+    # Crop the image
+    cropped_image = image[..., top:bottom, left:right]
+    
+    return cropped_image
 
 class BasePredictor:
     """
@@ -128,9 +145,10 @@ class BasePredictor:
 
         im = im.to(self.device)
         im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
+        cropped_im = crop_image(im, 0.7)
         if not_tensor:
-            im /= 255  # 0 - 255 to 0.0 - 1.0
-        return im
+            cropped_im /= 255  # 0 - 255 to 0.0 - 1.0
+        return cropped_im
 
     def inference(self, im, *args, **kwargs):
         """Runs inference on a given image using the specified model and arguments."""
