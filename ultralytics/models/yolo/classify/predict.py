@@ -9,6 +9,24 @@ from ultralytics.engine.results import Results
 from ultralytics.utils import DEFAULT_CFG, ops
 
 
+def crop_image(self, image, percent: float):
+    """Crop the input image to a given percent"""
+    original_height, original_width = image.size(-2), image.size(-1)
+    
+    new_height = int(original_height * percent)
+    new_width = int(original_width * percent)
+    
+    # Calculate crop boundaries
+    top = original_height - new_height
+    bottom = original_height
+    left = 0
+    right = new_width
+    
+    # Crop the image
+    cropped_image = image[..., top:bottom, left:right]
+    
+    return cropped_image
+
 class ClassificationPredictor(BasePredictor):
     """
     A class extending the BasePredictor class for prediction based on a classification model.
@@ -46,7 +64,8 @@ class ClassificationPredictor(BasePredictor):
                     [self.transforms(Image.fromarray(cv2.cvtColor(im, cv2.COLOR_BGR2RGB))) for im in img], dim=0
                 )
         img = (img if isinstance(img, torch.Tensor) else torch.from_numpy(img)).to(self.model.device)
-        return img.half() if self.model.fp16 else img.float()  # uint8 to fp16/32
+        cropped_img = crop_image(img, 0.8)  # type: ignore
+        return cropped_img.half() if self.model.fp16 else cropped_img.float()  # uint8 to fp16/32
 
     def postprocess(self, preds, img, orig_imgs):
         """Post-processes predictions to return Results objects."""
