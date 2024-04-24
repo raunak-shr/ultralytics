@@ -127,7 +127,7 @@ class BasePredictor:
             im = torch.from_numpy(im)
         
         im = im.to(self.device)
-        im = im.half() if self.model.fp16 else cropped_im.float()  # uint8 to fp16/32
+        im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
         if not_tensor:
             im /= 255  # 0 - 255 to 0.0 - 1.0
         return im
