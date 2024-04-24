@@ -64,7 +64,7 @@ class ClassificationPredictor(BasePredictor):
                     [self.transforms(Image.fromarray(cv2.cvtColor(im, cv2.COLOR_BGR2RGB))) for im in img], dim=0
                 )
         img = (img if isinstance(img, torch.Tensor) else torch.from_numpy(img)).to(self.model.device)
-        cropped_img = crop_image(img, 0.8)  # type: ignore
+        cropped_img = crop_image(img, 0.7)  # type: ignore
         return cropped_img.half() if self.model.fp16 else cropped_img.float()  # uint8 to fp16/32
 
     def postprocess(self, preds, img, orig_imgs):
