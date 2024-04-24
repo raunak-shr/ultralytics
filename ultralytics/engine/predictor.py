@@ -59,23 +59,6 @@ Example:
         probs = r.probs  # Class probabilities for classification outputs
 """
 
-def crop_image(image, percent: float):
-    """Crop the input image to a given percent"""
-    original_height, original_width = image.size(-2), image.size(-1)
-    
-    new_height = int(original_height * percent)
-    new_width = int(original_width * percent)
-    
-    # Calculate crop boundaries
-    top = original_height - new_height
-    bottom = original_height
-    left = 0
-    right = new_width
-    
-    # Crop the image
-    cropped_image = image[..., top:bottom, left:right]
-    
-    return cropped_image
 
 class BasePredictor:
     """
@@ -142,9 +125,9 @@ class BasePredictor:
             im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
             im = np.ascontiguousarray(im)  # contiguous
             im = torch.from_numpy(im)
-        cropped_im = crop_image(im, 0.7)
-        cropped_im = cropped_im.to(self.device)
-        im = cropped_im.half() if self.model.fp16 else cropped_im.float()  # uint8 to fp16/32
+        
+        im = im.to(self.device)
+        im = im.half() if self.model.fp16 else cropped_im.float()  # uint8 to fp16/32
         if not_tensor:
             im /= 255  # 0 - 255 to 0.0 - 1.0
         return im
