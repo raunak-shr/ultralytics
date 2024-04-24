@@ -146,8 +146,8 @@ class BasePredictor:
         cropped_im = cropped_im.to(self.device)
         im = cropped_im.half() if self.model.fp16 else cropped_im.float()  # uint8 to fp16/32
         if not_tensor:
-            cropped_im /= 255  # 0 - 255 to 0.0 - 1.0
-        return cropped_im
+            im /= 255  # 0 - 255 to 0.0 - 1.0
+        return im
 
     def inference(self, im, *args, **kwargs):
         """Runs inference on a given image using the specified model and arguments."""
